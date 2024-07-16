@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api/handler"
+	"github.com/ianbrito/fr-cotacao/internal/infra/db"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -22,6 +23,9 @@ func main() {
 	if env != "production" {
 		loadDotEnv()
 	}
+
+	conn := db.GetConnection()
+	defer conn.Close()
 
 	fmt.Println("API de Cotações")
 
