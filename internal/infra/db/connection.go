@@ -26,7 +26,7 @@ func GetConnection() *sql.DB {
 			database = os.Getenv("DB_DATABASE")
 		)
 
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, database)
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, password, host, port, database)
 
 		conn, err := sql.Open("mysql", dsn)
 		if err != nil {
