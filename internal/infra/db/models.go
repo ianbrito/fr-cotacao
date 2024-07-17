@@ -16,6 +16,8 @@ type Carrier struct {
 	RegisteredNumber string
 	StateInscription string
 	LogoUrl          string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type Dispatcher struct {
@@ -24,11 +26,13 @@ type Dispatcher struct {
 	RegisteredNumberShipper    string
 	RegisteredNumberDispatcher string
 	ZipcodeOrigin              int32
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
 }
 
 type Offer struct {
 	ID                           string
-	DispatcherID                 sql.NullString
+	DispatcherID                 string
 	Offer                        int32
 	SimulationType               int32
 	CarrierID                    int64
@@ -48,4 +52,6 @@ type Offer struct {
 	Composition                  json.RawMessage
 	Esg                          json.RawMessage
 	Modal                        sql.NullString
+	CreatedAt                    time.Time
+	UpdatedAt                    time.Time
 }

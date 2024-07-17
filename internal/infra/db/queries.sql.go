@@ -14,8 +14,8 @@ import (
 
 const createCarrier = `-- name: CreateCarrier :execresult
 INSERT INTO
-    carriers (reference, name, registered_number, state_inscription, logo_url)
-VALUES (?, ?, ?, ?, ?)
+    carriers (reference, name, registered_number, state_inscription, logo_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateCarrierParams struct {
@@ -24,6 +24,8 @@ type CreateCarrierParams struct {
 	RegisteredNumber string
 	StateInscription string
 	LogoUrl          string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 func (q *Queries) CreateCarrier(ctx context.Context, arg CreateCarrierParams) (sql.Result, error) {
@@ -33,13 +35,15 @@ func (q *Queries) CreateCarrier(ctx context.Context, arg CreateCarrierParams) (s
 		arg.RegisteredNumber,
 		arg.StateInscription,
 		arg.LogoUrl,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 }
 
 const createDispatcher = `-- name: CreateDispatcher :execresult
 INSERT INTO
-    dispatchers (id, request_id, registered_number_shipper, registered_number_dispatcher, zipcode_origin)
-VALUES (?, ?, ?, ?, ?)
+    dispatchers (id, request_id, registered_number_shipper, registered_number_dispatcher, zipcode_origin, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateDispatcherParams struct {
@@ -48,6 +52,8 @@ type CreateDispatcherParams struct {
 	RegisteredNumberShipper    string
 	RegisteredNumberDispatcher string
 	ZipcodeOrigin              int32
+	CreatedAt                  time.Time
+	UpdatedAt                  time.Time
 }
 
 func (q *Queries) CreateDispatcher(ctx context.Context, arg CreateDispatcherParams) (sql.Result, error) {
@@ -57,18 +63,20 @@ func (q *Queries) CreateDispatcher(ctx context.Context, arg CreateDispatcherPara
 		arg.RegisteredNumberShipper,
 		arg.RegisteredNumberDispatcher,
 		arg.ZipcodeOrigin,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 }
 
 const createOffer = `-- name: CreateOffer :execresult
 INSERT INTO
-    offers (id, dispatcher_id, offer, simulation_type, carrier_id, service, service_code, service_description, delivery_time, original_delivery_time, identifier, delivery_note, home_delivery, carrier_needs_to_return_to_sender, expiration, cost_price, final_price, weights, composition, esg, modal)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    offers (id, dispatcher_id, offer, simulation_type, carrier_id, service, service_code, service_description, delivery_time, original_delivery_time, identifier, delivery_note, home_delivery, carrier_needs_to_return_to_sender, expiration, cost_price, final_price, weights, composition, esg, modal, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateOfferParams struct {
 	ID                           string
-	DispatcherID                 sql.NullString
+	DispatcherID                 string
 	Offer                        int32
 	SimulationType               int32
 	CarrierID                    int64
@@ -88,6 +96,8 @@ type CreateOfferParams struct {
 	Composition                  json.RawMessage
 	Esg                          json.RawMessage
 	Modal                        sql.NullString
+	CreatedAt                    time.Time
+	UpdatedAt                    time.Time
 }
 
 func (q *Queries) CreateOffer(ctx context.Context, arg CreateOfferParams) (sql.Result, error) {
@@ -113,5 +123,89 @@ func (q *Queries) CreateOffer(ctx context.Context, arg CreateOfferParams) (sql.R
 		arg.Composition,
 		arg.Esg,
 		arg.Modal,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
+}
+
+const getCarrierByID = `-- name: GetCarrierByID :one
+SELECT
+    reference, name, registered_number, state_inscription, logo_url, created_at, updated_at
+FROM carriers
+WHERE reference = ?
+`
+
+func (q *Queries) GetCarrierByID(ctx context.Context, reference int64) (Carrier, error) {
+	row := q.db.QueryRowContext(ctx, getCarrierByID, reference)
+	var i Carrier
+	err := row.Scan(
+		&i.Reference,
+		&i.Name,
+		&i.RegisteredNumber,
+		&i.StateInscription,
+		&i.LogoUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getDispatcherByID = `-- name: GetDispatcherByID :one
+SELECT
+    id, request_id, registered_number_shipper, registered_number_dispatcher, zipcode_origin, created_at, updated_at
+FROM dispatchers
+WHERE id = ?
+`
+
+func (q *Queries) GetDispatcherByID(ctx context.Context, id string) (Dispatcher, error) {
+	row := q.db.QueryRowContext(ctx, getDispatcherByID, id)
+	var i Dispatcher
+	err := row.Scan(
+		&i.ID,
+		&i.RequestID,
+		&i.RegisteredNumberShipper,
+		&i.RegisteredNumberDispatcher,
+		&i.ZipcodeOrigin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getOfferByID = `-- name: GetOfferByID :one
+SELECT
+    id, dispatcher_id, offer, simulation_type, carrier_id, service, service_code, service_description, delivery_time, original_delivery_time, identifier, delivery_note, home_delivery, carrier_needs_to_return_to_sender, expiration, cost_price, final_price, weights, composition, esg, modal, created_at, updated_at
+FROM offers
+WHERE id = ?
+`
+
+func (q *Queries) GetOfferByID(ctx context.Context, id string) (Offer, error) {
+	row := q.db.QueryRowContext(ctx, getOfferByID, id)
+	var i Offer
+	err := row.Scan(
+		&i.ID,
+		&i.DispatcherID,
+		&i.Offer,
+		&i.SimulationType,
+		&i.CarrierID,
+		&i.Service,
+		&i.ServiceCode,
+		&i.ServiceDescription,
+		&i.DeliveryTime,
+		&i.OriginalDeliveryTime,
+		&i.Identifier,
+		&i.DeliveryNote,
+		&i.HomeDelivery,
+		&i.CarrierNeedsToReturnToSender,
+		&i.Expiration,
+		&i.CostPrice,
+		&i.FinalPrice,
+		&i.Weights,
+		&i.Composition,
+		&i.Esg,
+		&i.Modal,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
