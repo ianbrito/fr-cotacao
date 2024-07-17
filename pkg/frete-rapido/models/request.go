@@ -42,14 +42,6 @@ type QuoteRequest struct {
 	SimulationType []int         `json:"simulation_type"`
 }
 
-func NewQuoteRequest(shipper Shipper, recipient Recipient, dispatchers []*Dispatcher) *QuoteRequest {
-	return &QuoteRequest{
-		Shipper:     shipper,
-		Recipient:   recipient,
-		Dispatchers: dispatchers,
-	}
-}
-
 func (qr *QuoteRequest) AddDispatcher(dispatcher Dispatcher) {
 	qr.Dispatchers = append(qr.Dispatchers, &dispatcher)
 }
