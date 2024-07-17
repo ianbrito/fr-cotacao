@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 	"github.com/ianbrito/fr-cotacao/internal/dto"
 	"github.com/ianbrito/fr-cotacao/internal/service"
@@ -25,6 +26,7 @@ func validateRequest(v interface{}) []string {
 }
 
 func GetQuote(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -32,23 +34,24 @@ func GetQuote(w http.ResponseWriter, r *http.Request) {
 
 	var quote dto.QuoteRequest
 	if err := json.NewDecoder(r.Body).Decode(&quote); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		response := dto.NewErrorResponse("Ocorreu um erro ao processar sua solicitação!", http.StatusBadRequest)
+		render.Render(w, r, response)
 		return
 	}
 
 	if errors := validateRequest(&quote); errors != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"errors": errors,
-		})
+		response := dto.NewErrorResponse("Ocorreu um erro ao processar sua solicitação!", http.StatusBadRequest)
+		response.Errors = errors
+		render.Render(w, r, response)
 		return
 	}
 
-	err := service.GetQuoteService(&quote)
+	response, err := service.GetQuoteService(&quote)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.NewErrorResponse("Ocorreu um erro ao processar sua solicitação!", http.StatusInternalServerError)
+		render.Render(w, r, response)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	render.Render(w, r, response)
 }
