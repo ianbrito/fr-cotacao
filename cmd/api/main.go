@@ -33,7 +33,7 @@ func main() {
 
 	server := api.NewWebServer(port)
 
-	server.AddHandler("/api/v1/quote", handler.Quote)
+	server.AddHandler("/api/v1/quote", handler.GetQuote)
 
 	server.Run()
 }
