@@ -3,9 +3,9 @@ package dto
 import "net/http"
 
 type ErrorResponse struct {
-	Message string   `json:"message"`
-	Status  int      `json:"-"`
-	Errors  []string `json:"errors"`
+	Message string            `json:"message"`
+	Status  int               `json:"-"`
+	Errors  map[string]string `json:"errors"`
 }
 
 func NewErrorResponse(message string, status int) *ErrorResponse {
@@ -19,7 +19,7 @@ func (err *ErrorResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(err.Status)
 	if err.Errors == nil {
-		err.Errors = []string{}
+		err.Errors = map[string]string{}
 	}
 	return nil
 }
