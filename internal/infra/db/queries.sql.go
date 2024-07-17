@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"strings"
 	"time"
 )
 
@@ -150,6 +151,115 @@ func (q *Queries) GetCarrierByID(ctx context.Context, reference int64) (Carrier,
 	return i, err
 }
 
+const getCarrierMetric = `-- name: GetCarrierMetric :many
+SELECT
+    carriers.name AS carrier_name,
+    COUNT(carrier_id) AS total,
+    CAST(SUM(final_price) AS DECIMAL (13,2))  AS final_price_sum,
+    CAST(AVG(final_price) AS DECIMAL (13,2)) AS final_price_mean
+FROM offers
+    JOIN carriers ON offers.carrier_id = carriers.reference
+GROUP BY carrier_id ORDER BY carrier_name
+`
+
+type GetCarrierMetricRow struct {
+	CarrierName    string
+	Total          int64
+	FinalPriceSum  float64
+	FinalPriceMean float64
+}
+
+func (q *Queries) GetCarrierMetric(ctx context.Context) ([]GetCarrierMetricRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCarrierMetric)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCarrierMetricRow
+	for rows.Next() {
+		var i GetCarrierMetricRow
+		if err := rows.Scan(
+			&i.CarrierName,
+			&i.Total,
+			&i.FinalPriceSum,
+			&i.FinalPriceMean,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCarrierMetricsWithLimit = `-- name: GetCarrierMetricsWithLimit :many
+SELECT
+    r.carrier_name,
+    COUNT(r.carrier_id) AS total,
+    CAST(SUM(r.final_price) AS DECIMAL (13,2))  AS final_price_sum,
+    CAST(AVG(r.final_price) AS DECIMAL (13,2)) AS final_price_mean
+FROM (
+     SELECT
+         offers.carrier_id,
+         carriers.name AS carrier_name,
+         offers.final_price
+     FROM offers
+              JOIN carriers ON offers.carrier_id = carriers.reference
+     WHERE offers.dispatcher_id IN (/*SLICE:ids*/?)
+     ORDER BY offers.created_at
+ ) AS r GROUP BY r.carrier_name ORDER BY r.carrier_name
+`
+
+type GetCarrierMetricsWithLimitRow struct {
+	CarrierName    string
+	Total          int64
+	FinalPriceSum  float64
+	FinalPriceMean float64
+}
+
+func (q *Queries) GetCarrierMetricsWithLimit(ctx context.Context, ids []string) ([]GetCarrierMetricsWithLimitRow, error) {
+	query := getCarrierMetricsWithLimit
+	var queryParams []interface{}
+	if len(ids) > 0 {
+		for _, v := range ids {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:ids*/?", strings.Repeat(",?", len(ids))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:ids*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCarrierMetricsWithLimitRow
+	for rows.Next() {
+		var i GetCarrierMetricsWithLimitRow
+		if err := rows.Scan(
+			&i.CarrierName,
+			&i.Total,
+			&i.FinalPriceSum,
+			&i.FinalPriceMean,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDispatcherByID = `-- name: GetDispatcherByID :one
 SELECT
     id, request_id, registered_number_shipper, registered_number_dispatcher, zipcode_origin, created_at, updated_at
@@ -170,6 +280,37 @@ func (q *Queries) GetDispatcherByID(ctx context.Context, id string) (Dispatcher,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getDispatcherIdsWithLimit = `-- name: GetDispatcherIdsWithLimit :many
+SELECT
+    id
+FROM dispatchers
+ORDER BY created_at DESC
+LIMIT ?
+`
+
+func (q *Queries) GetDispatcherIdsWithLimit(ctx context.Context, limit int32) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getDispatcherIdsWithLimit, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOfferByID = `-- name: GetOfferByID :one
@@ -207,5 +348,60 @@ func (q *Queries) GetOfferByID(ctx context.Context, id string) (Offer, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const getPriceMetric = `-- name: GetPriceMetric :one
+SELECT
+    CAST(MIN(final_price) AS DECIMAL (13,2)) AS cheaper_shipping,
+    CAST(MAX(final_price) AS DECIMAL (13,2)) AS most_expensive_shipping
+FROM offers
+ORDER BY created_at
+`
+
+type GetPriceMetricRow struct {
+	CheaperShipping       float64
+	MostExpensiveShipping float64
+}
+
+func (q *Queries) GetPriceMetric(ctx context.Context) (GetPriceMetricRow, error) {
+	row := q.db.QueryRowContext(ctx, getPriceMetric)
+	var i GetPriceMetricRow
+	err := row.Scan(&i.CheaperShipping, &i.MostExpensiveShipping)
+	return i, err
+}
+
+const getPriceMetricWithLimit = `-- name: GetPriceMetricWithLimit :one
+SELECT
+    CAST(MIN(r.final_price) AS DECIMAL (13,2)) AS cheaper_shipping,
+    CAST(MAX(r.final_price) AS DECIMAL (13,2)) AS most_expensive_shipping
+FROM (
+     SELECT
+         offers.final_price
+     FROM offers
+     WHERE offers.dispatcher_id IN (/*SLICE:ids*/?)
+     ORDER BY offers.created_at
+ ) AS r
+`
+
+type GetPriceMetricWithLimitRow struct {
+	CheaperShipping       float64
+	MostExpensiveShipping float64
+}
+
+func (q *Queries) GetPriceMetricWithLimit(ctx context.Context, ids []string) (GetPriceMetricWithLimitRow, error) {
+	query := getPriceMetricWithLimit
+	var queryParams []interface{}
+	if len(ids) > 0 {
+		for _, v := range ids {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:ids*/?", strings.Repeat(",?", len(ids))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:ids*/?", "NULL", 1)
+	}
+	row := q.db.QueryRowContext(ctx, query, queryParams...)
+	var i GetPriceMetricWithLimitRow
+	err := row.Scan(&i.CheaperShipping, &i.MostExpensiveShipping)
 	return i, err
 }

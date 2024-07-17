@@ -38,5 +38,8 @@ func main() {
 	quoteHandler := handler.NewQuoteHandler(ctx)
 	server.AddHandler("/api/v1/quote", quoteHandler.GetQuote)
 
+	metricsHandler := handler.NewMetricsHandler(ctx)
+	server.AddHandler("/api/v1/metrics", metricsHandler.GetMetrics)
+
 	server.Run()
 }
