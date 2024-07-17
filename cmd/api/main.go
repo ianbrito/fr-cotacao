@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api/handler"
@@ -23,9 +24,10 @@ func main() {
 	if env != "production" {
 		loadDotEnv()
 	}
+	ctx := context.Background()
 
-	conn := db.GetConnection()
-	defer conn.Close()
+	db.GetConnection()
+	defer db.CloseConnection()
 
 	fmt.Println("API de Cotações")
 
@@ -33,7 +35,8 @@ func main() {
 
 	server := api.NewWebServer(port)
 
-	server.AddHandler("/api/v1/quote", handler.GetQuote)
+	quoteHandler := handler.NewQuoteHandler(ctx)
+	server.AddHandler("/api/v1/quote", quoteHandler.GetQuote)
 
 	server.Run()
 }

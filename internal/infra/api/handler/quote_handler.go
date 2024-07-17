@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/render"
@@ -10,6 +11,16 @@ import (
 	"net/http"
 	"strings"
 )
+
+type QuoteHandler struct {
+	Service *service.QuoteService
+}
+
+func NewQuoteHandler(ctx context.Context) *QuoteHandler {
+	return &QuoteHandler{
+		Service: service.NewQuoteService(ctx),
+	}
+}
 
 func validateRequest(v interface{}) []string {
 	validate := validator.New()
@@ -25,7 +36,7 @@ func validateRequest(v interface{}) []string {
 	return nil
 }
 
-func GetQuote(w http.ResponseWriter, r *http.Request) {
+func (qh *QuoteHandler) GetQuote(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -46,7 +57,7 @@ func GetQuote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := service.GetQuoteService(&quote)
+	response, err := qh.Service.GetQuoteService(&quote)
 	if err != nil {
 		response := dto.NewErrorResponse("Ocorreu um erro ao processar sua solicitação!", http.StatusInternalServerError)
 		render.Render(w, r, response)
