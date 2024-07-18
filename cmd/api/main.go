@@ -31,7 +31,7 @@ func main() {
 
 	fmt.Println("API de Cotações")
 
-	var port = os.Getenv("HTTP_PORT")
+	port := os.Getenv("HTTP_PORT")
 
 	server := api.NewWebServer(port)
 

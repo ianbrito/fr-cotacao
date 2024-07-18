@@ -16,6 +16,11 @@ type WebServer struct {
 }
 
 func NewWebServer(httpPort string) *WebServer {
+
+	if httpPort == "" {
+		httpPort = "80"
+	}
+
 	return &WebServer{
 		Router:   chi.NewRouter(),
 		HttpPort: httpPort,
