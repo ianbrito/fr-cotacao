@@ -1,6 +1,6 @@
 services:
   api:
-    image: ianbrito/fr-cotacao
+    image: fr-cotacao
     container_name: quote_api-api
     restart: unless-stopped
     env_file:
@@ -24,7 +24,7 @@ services:
       MARIADB_USER: ${DB_USERNAME}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: ${DB_DATABASE}
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      ALLOW_EMPTY_PASSWORD: yes
       TZ: 'America/Sao_Paulo'
     networks:
       quote_net:
