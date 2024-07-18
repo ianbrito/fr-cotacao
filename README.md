@@ -91,3 +91,23 @@ Metricas
 `GET http://172.16.10.3/api/v1/metrics`
 
 `GET http://localhost:8080/api/v1/metrics`
+
+## Informações Adicionais
+
+Para praticidade realizei deploy da API e uma imagem no docker hub
+
+URL: `http://cotacao.ianbrito.com.br`
+
+IMAGE: `https://hub.docker.com/r/ianbrito/fr-cotacao`
+
+Documentação da API
+
+`http://cotacao.ianbrito.com.br/swagger/index.html`
+
+Cotação
+
+`POST http://cotacao.ianbrito.com.br/api/v1/quote`
+
+Metricas
+
+`GET http://cotacao.ianbrito.com.br/api/v1/metrics`
