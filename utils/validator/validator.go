@@ -14,8 +14,10 @@ func getStructValidationMessage(field string, t string) string {
 	switch t {
 	case "required":
 		return fmt.Sprintf("the %s attribute field is required.", field)
+	case "len":
+		return fmt.Sprintf("the %s attribute length is required.", field)
 	default:
-		return fmt.Sprintf("the %s has the wrong type.", field)
+		return fmt.Sprintf("%s", t)
 	}
 }
 
@@ -53,6 +55,7 @@ func validateRequest(v interface{}) map[string]string {
 		errors := make(map[string]string)
 		for _, err := range err.(validator.ValidationErrors) {
 			fieldName := strings.TrimPrefix(err.StructNamespace(), "QuoteRequest.")
+			fmt.Printf("%v", err)
 			errors[fieldName] = getStructValidationMessage(fieldName, err.Tag())
 		}
 		return errors

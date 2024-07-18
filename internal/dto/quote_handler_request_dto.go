@@ -1,7 +1,7 @@
 package dto
 
 type AddressRequest struct {
-	ZipCode string `json:"zipcode" validate:"required"`
+	ZipCode string `json:"zipcode" validate:"required,len=8"`
 }
 
 type RecipientRequest struct {

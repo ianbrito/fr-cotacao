@@ -60,16 +60,16 @@ func (r *SQLOfferRepository) Save(offer *entity.Offer, dispatcherID string) (str
 		SimulationType:               offer.SimulationType,
 		CarrierID:                    carrier.Reference,
 		Service:                      offer.Service,
-		ServiceCode:                  sql.NullString{String: offer.ServiceCode},
-		ServiceDescription:           sql.NullString{String: offer.ServiceDescription},
-		Identifier:                   sql.NullString{String: offer.Identifier},
-		DeliveryNote:                 sql.NullString{String: offer.DeliveryNote},
-		HomeDelivery:                 sql.NullBool{Bool: offer.HomeDelivery},
-		CarrierNeedsToReturnToSender: sql.NullBool{Bool: offer.CarrierNeedsToReturnToSender},
+		ServiceCode:                  toNullString(offer.ServiceCode),
+		ServiceDescription:           toNullString(offer.ServiceDescription),
+		Identifier:                   toNullString(offer.Identifier),
+		DeliveryNote:                 toNullString(offer.DeliveryNote),
+		HomeDelivery:                 sql.NullBool{Bool: offer.HomeDelivery, Valid: true},
+		CarrierNeedsToReturnToSender: sql.NullBool{Bool: offer.CarrierNeedsToReturnToSender, Valid: true},
 		Expiration:                   offer.Expiration,
 		CostPrice:                    offer.CostPrice,
 		FinalPrice:                   offer.FinalPrice,
-		Modal:                        sql.NullString{String: offer.Modal},
+		Modal:                        toNullString(offer.Modal),
 		Weights:                      weights,
 		DeliveryTime:                 deliveryTime,
 		OriginalDeliveryTime:         originalDeliveryTime,
@@ -87,4 +87,11 @@ func (r *SQLOfferRepository) Save(offer *entity.Offer, dispatcherID string) (str
 	}
 
 	return offer.ID, nil
+}
+
+func toNullString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{String: "", Valid: false}
+	}
+	return sql.NullString{String: s, Valid: true}
 }

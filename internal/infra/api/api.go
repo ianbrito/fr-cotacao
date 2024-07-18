@@ -37,6 +37,7 @@ func (w *WebServer) Run() {
 		w.Router.Handle(path, handler)
 	}
 
+	fmt.Printf("Listening on 0.0.0.0:%s\n", w.HttpPort)
 	if err := http.ListenAndServe(addr, w.Router); err != nil {
 		panic(err.Error())
 	}

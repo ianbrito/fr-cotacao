@@ -41,13 +41,16 @@ func (qs *QuoteService) GetQuoteService(request *dto.QuoteRequest) (*dto.QuoteRe
 		return nil, err
 	}
 
-	qs.SaveQuotes(quotes)
-
-	response := createQuoteResponse(quotes)
+	dispatchers, err := qs.SaveQuotes(quotes)
+	if err != nil {
+		return nil, err
+	}
+	response := createQuoteResponse(dispatchers)
 	return response, nil
 }
 
-func (qs *QuoteService) SaveQuotes(quotes *models.Response) error {
+func (qs *QuoteService) SaveQuotes(quotes *models.Response) ([]*entity.Dispatcher, error) {
+	var dispatchers []*entity.Dispatcher
 	for _, d := range quotes.Dispatchers {
 		var offers []*entity.Offer
 		for _, o := range d.Offers {
@@ -97,7 +100,7 @@ func (qs *QuoteService) SaveQuotes(quotes *models.Response) error {
 				originalDeliveryTime,
 			))
 		}
-		_, err := qs.Repository.Save(&entity.Dispatcher{
+		dispatcher, err := qs.Repository.Save(&entity.Dispatcher{
 			ID:                         d.ID,
 			RequestID:                  d.RequestID,
 			RegisteredNumberShipper:    d.RegisteredNumberShipper,
@@ -107,10 +110,11 @@ func (qs *QuoteService) SaveQuotes(quotes *models.Response) error {
 		})
 
 		if err != nil {
-			return err
+			return nil, err
 		}
+		dispatchers = append(dispatchers, dispatcher)
 	}
-	return nil
+	return dispatchers, nil
 }
 
 func mapVolumes(volumes []*dto.VolumeRequest) ([]*models.Volume, error) {
@@ -183,9 +187,9 @@ func createDispatcher(volumes []*models.Volume) models.Dispatcher {
 	}
 }
 
-func createQuoteResponse(data *models.Response) *dto.QuoteResponse {
+func createQuoteResponse(dispatchers []*entity.Dispatcher) *dto.QuoteResponse {
 	response := dto.NewQuoteResponse()
-	for _, dispatcher := range data.Dispatchers {
+	for _, dispatcher := range dispatchers {
 		for _, offer := range dispatcher.Offers {
 			response.AddCarrier(&dto.CarrierResponse{
 				Name:     offer.Carrier.Name,
