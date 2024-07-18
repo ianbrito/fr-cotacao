@@ -1,4 +1,4 @@
-package models
+package frete_rapido
 
 import (
 	"encoding/json"

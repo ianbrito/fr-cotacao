@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/ianbrito/fr-cotacao/pkg/frete-rapido/models"
-	"log"
 	"net/http"
 	"os"
 )
@@ -20,10 +18,11 @@ func NewFRCotacaoClient() *FRCotacaoClient {
 	}
 }
 
-func (c *FRCotacaoClient) Simulate(request *models.QuoteRequest) (*models.Response, error) {
+func (c *FRCotacaoClient) Simulate(request *QuoteRequest) (*QuoteResponse, error) {
+
 	response, err := http.Post(c.Endpoint, "application/json", bytes.NewReader(request.ParseToJSON()))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer response.Body.Close()
 
@@ -31,9 +30,9 @@ func (c *FRCotacaoClient) Simulate(request *models.QuoteRequest) (*models.Respon
 		return nil, fmt.Errorf("request failed with status code: %d", response.StatusCode)
 	}
 
-	var data models.Response
+	var data QuoteResponse
 	if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return &data, nil
 }

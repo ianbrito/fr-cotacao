@@ -1,6 +1,6 @@
-package models
+package frete_rapido
 
-type Response struct {
+type QuoteResponse struct {
 	Dispatchers []DispatcherResponse `json:"dispatchers"`
 }
 
@@ -15,28 +15,28 @@ type DispatcherResponse struct {
 }
 
 type OfferResponse struct {
-	Offer                        int          `json:"offer"`
-	SimulationType               int          `json:"simulation_type"`
-	Carrier                      Carrier      `json:"carrier"`
-	Service                      string       `json:"service"`
-	ServiceCode                  string       `json:"service_code"`
-	ServiceDescription           string       `json:"service_description"`
-	DeliveryTime                 DeliveryTime `json:"delivery_time"`
-	Expiration                   string       `json:"expiration"`
-	CostPrice                    float64      `json:"cost_price"`
-	FinalPrice                   float64      `json:"final_price"`
-	Weights                      Weights      `json:"weights"`
-	Composition                  Composition  `json:"composition"`
-	OriginalDeliveryTime         DeliveryTime `json:"original_delivery_time"`
-	Identifier                   string       `json:"identifier"`
-	DeliveryNote                 string       `json:"delivery_note"`
-	HomeDelivery                 bool         `json:"home_delivery"`
-	CarrierNeedsToReturnToSender bool         `json:"carrier_needs_to_return_to_sender"`
-	Modal                        string       `json:"modal"`
-	Esg                          *Esg         `json:"esg"`
+	Offer                        int                  `json:"offer"`
+	SimulationType               int                  `json:"simulation_type"`
+	Carrier                      CarrierResponse      `json:"carrier"`
+	Service                      string               `json:"service"`
+	ServiceCode                  string               `json:"service_code"`
+	ServiceDescription           string               `json:"service_description"`
+	DeliveryTime                 DeliveryTimeResponse `json:"delivery_time"`
+	Expiration                   string               `json:"expiration"`
+	CostPrice                    float64              `json:"cost_price"`
+	FinalPrice                   float64              `json:"final_price"`
+	Weights                      WeightsResponse      `json:"weights"`
+	Composition                  CompositionResponse  `json:"composition"`
+	OriginalDeliveryTime         DeliveryTimeResponse `json:"original_delivery_time"`
+	Identifier                   string               `json:"identifier"`
+	DeliveryNote                 string               `json:"delivery_note"`
+	HomeDelivery                 bool                 `json:"home_delivery"`
+	CarrierNeedsToReturnToSender bool                 `json:"carrier_needs_to_return_to_sender"`
+	Modal                        string               `json:"modal"`
+	Esg                          *EsgResponse         `json:"esg"`
 }
 
-type Carrier struct {
+type CarrierResponse struct {
 	Reference        int    `json:"reference"`
 	Name             string `json:"name"`
 	RegisteredNumber string `json:"registered_number"`
@@ -44,32 +44,32 @@ type Carrier struct {
 	Logo             string `json:"logo"`
 }
 
-type DeliveryTime struct {
+type DeliveryTimeResponse struct {
 	Days          int    `json:"days"`
 	Hours         int    `json:"hours"`
 	Minutes       int    `json:"minutes"`
 	EstimatedDate string `json:"estimated_date"`
 }
 
-type Weights struct {
+type WeightsResponse struct {
 	Real  float64 `json:"real"`
 	Cubed float64 `json:"cubed"`
 	Used  float64 `json:"used"`
 }
 
-type Composition struct {
-	FreightWeight       float64   `json:"freight_weight"`
-	FreightWeightExcess float64   `json:"freight_weight_excess"`
-	FreightWeightVolume float64   `json:"freight_weight_volume"`
-	FreightVolume       float64   `json:"freight_volume"`
-	FreightMinimum      float64   `json:"freight_minimum"`
-	FreightInvoice      float64   `json:"freight_invoice"`
-	SubTotal1           SubTotal1 `json:"sub_total1"`
-	SubTotal2           SubTotal2 `json:"sub_total2"`
-	SubTotal3           SubTotal3 `json:"sub_total3"`
+type CompositionResponse struct {
+	FreightWeight       float64           `json:"freight_weight"`
+	FreightWeightExcess float64           `json:"freight_weight_excess"`
+	FreightWeightVolume float64           `json:"freight_weight_volume"`
+	FreightVolume       float64           `json:"freight_volume"`
+	FreightMinimum      float64           `json:"freight_minimum"`
+	FreightInvoice      float64           `json:"freight_invoice"`
+	SubTotal1           SubTotal1Response `json:"sub_total1"`
+	SubTotal2           SubTotal2Response `json:"sub_total2"`
+	SubTotal3           SubTotal3Response `json:"sub_total3"`
 }
 
-type SubTotal1 struct {
+type SubTotal1Response struct {
 	Daily           int `json:"daily"`
 	Collect         int `json:"collect"`
 	Dispatch        int `json:"dispatch"`
@@ -92,18 +92,18 @@ type SubTotal1 struct {
 	OtherPerProduct int `json:"other_per_product"`
 }
 
-type SubTotal2 struct {
+type SubTotal2Response struct {
 	Trt        int `json:"trt"`
 	Tda        int `json:"tda"`
 	Tde        int `json:"tde"`
 	Scheduling int `json:"scheduling"`
 }
 
-type SubTotal3 struct {
+type SubTotal3Response struct {
 	Icms int `json:"icms"`
 }
 
-type Esg struct {
+type EsgResponse struct {
 	CO2EmissionEstimate   float64 `json:"co2_emission_estimate"`
 	CO2NeutralizationCost float64 `json:"co2_neutralization_cost"`
 }
