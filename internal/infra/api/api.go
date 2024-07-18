@@ -3,10 +3,12 @@ package api
 import (
 	"fmt"
 	"github.com/go-chi/chi"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
+	_ "github.com/ianbrito/fr-cotacao/docs"
 )
 
 type WebServer struct {
@@ -37,7 +39,7 @@ func (w *WebServer) Run() {
 
 	w.Router.Use(middleware.Logger)
 	w.Router.Use(render.SetContentType(render.ContentTypeJSON))
-
+	w.Router.Mount("/swagger", httpSwagger.WrapHandler)
 	for path, handler := range w.Handlers {
 		w.Router.Handle(path, handler)
 	}

@@ -20,6 +20,17 @@ func NewMetricsHandler(ctx context.Context) *MetricsHandler {
 	}
 }
 
+// GetMetrics
+// @Summary Get metrics
+// @Description Retrieve metrics, optionally limited by the number of last quotes
+// @Tags metrics
+// @Accept json
+// @Produce json
+// @Param last_quotes query int false "Number of last quotes to limit the metrics"
+// @Success 200 {object} dto.MetricResponse
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Router /metrics [get]
 func (h *MetricsHandler) GetMetrics(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {

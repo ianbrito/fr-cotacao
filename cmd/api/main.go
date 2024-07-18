@@ -17,6 +17,10 @@ func loadDotEnv() {
 	}
 }
 
+// @title Quote API
+// @version 1.0
+// @description API de consulta de cotações
+// @BasePath /api/v1
 func main() {
 
 	env := os.Getenv("APP_ENV")

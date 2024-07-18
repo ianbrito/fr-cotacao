@@ -74,9 +74,19 @@ Agora a API está pronta para ser utilizada
 
 Endpoints
 
+Documentação da API
+
+`http://172.16.10.3/swagger/index.html`
+
+`http://localhost:8080/swagger/index.html`
+
+Cotação
+
 `POST http://172.16.10.3/api/v1/quote`
 
 `POST http://localhost:8080/api/v1/quote`
+
+Metricas
 
 `GET http://172.16.10.3/api/v1/metrics`
 
