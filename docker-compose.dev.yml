@@ -11,6 +11,7 @@ services:
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_DATABASE: ${DB_DATABASE}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      TZ: 'America/Sao_Paulo'
     networks:
       quote_net:
         ipv4_address: 172.16.10.2
