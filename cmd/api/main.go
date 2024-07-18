@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api"
 	"github.com/ianbrito/fr-cotacao/internal/infra/api/handler"
-	"github.com/ianbrito/fr-cotacao/internal/infra/db"
+	"github.com/ianbrito/fr-cotacao/internal/infra/repository"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -26,8 +26,13 @@ func main() {
 	}
 	ctx := context.Background()
 
-	db.GetConnection()
-	defer db.CloseConnection()
+	repository.InitDB()
+	defer func() {
+		err := repository.CloseDB()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	fmt.Println("API de Cotações")
 

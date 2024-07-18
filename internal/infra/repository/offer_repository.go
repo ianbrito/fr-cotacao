@@ -20,15 +20,11 @@ type SQLOfferRepository struct {
 	CarrierRepository *SQLCarrierRepository
 }
 
-func NewSQLOfferRepository(ctx context.Context, queries *db.Queries) *SQLOfferRepository {
-	if queries == nil {
-		conn := db.GetConnection()
-		queries = db.New(conn)
-	}
+func NewSQLOfferRepository(ctx context.Context) *SQLOfferRepository {
 	return &SQLOfferRepository{
-		Queries:           queries,
+		Queries:           db.New(DB),
 		Ctx:               ctx,
-		CarrierRepository: NewSQLCarrierRepository(ctx, queries),
+		CarrierRepository: NewSQLCarrierRepository(ctx),
 	}
 }
 

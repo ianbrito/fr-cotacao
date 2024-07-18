@@ -18,7 +18,7 @@ type QuoteService struct {
 func NewQuoteService(ctx context.Context) *QuoteService {
 	return &QuoteService{
 		ctx:        ctx,
-		Repository: repository.NewSQLDispatcherRepository(ctx, nil),
+		Repository: repository.NewSQLDispatcherRepository(ctx),
 	}
 }
 

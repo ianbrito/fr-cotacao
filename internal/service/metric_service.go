@@ -14,7 +14,7 @@ type MetricService struct {
 func NewMetricService(ctx context.Context) *MetricService {
 	return &MetricService{
 		Ctx:        ctx,
-		Repository: repository.NewSQLMetricRepository(ctx, nil),
+		Repository: repository.NewSQLMetricRepository(ctx),
 	}
 }
 

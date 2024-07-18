@@ -18,13 +18,9 @@ type SQLMetricRepository struct {
 	Ctx     context.Context
 }
 
-func NewSQLMetricRepository(ctx context.Context, queries *db.Queries) *SQLMetricRepository {
-	if queries == nil {
-		conn := db.GetConnection()
-		queries = db.New(conn)
-	}
+func NewSQLMetricRepository(ctx context.Context) *SQLMetricRepository {
 	return &SQLMetricRepository{
-		Queries: queries,
+		Queries: db.New(DB),
 		Ctx:     ctx,
 	}
 }

@@ -17,15 +17,10 @@ type SQLDispatcherRepository struct {
 	OfferRepository *SQLOfferRepository
 }
 
-func NewSQLDispatcherRepository(ctx context.Context, queries *db.Queries) *SQLDispatcherRepository {
-	if queries == nil {
-		conn := db.GetConnection()
-		queries = db.New(conn)
-	}
+func NewSQLDispatcherRepository(ctx context.Context) *SQLDispatcherRepository {
 	return &SQLDispatcherRepository{
-		Queries:         queries,
-		Ctx:             ctx,
-		OfferRepository: NewSQLOfferRepository(ctx, queries),
+		Queries: db.New(DB),
+		Ctx:     ctx,
 	}
 }
 
