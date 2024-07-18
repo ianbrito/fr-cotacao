@@ -19,8 +19,9 @@ type SQLDispatcherRepository struct {
 
 func NewSQLDispatcherRepository(ctx context.Context) *SQLDispatcherRepository {
 	return &SQLDispatcherRepository{
-		Queries: db.New(DB),
-		Ctx:     ctx,
+		Queries:         db.New(DB),
+		Ctx:             ctx,
+		OfferRepository: NewSQLOfferRepository(ctx),
 	}
 }
 

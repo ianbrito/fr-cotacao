@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/ianbrito/fr-cotacao/internal/domain/entity"
 	"github.com/ianbrito/fr-cotacao/internal/infra/db"
 	"time"
@@ -28,25 +27,25 @@ func NewSQLOfferRepository(ctx context.Context) *SQLOfferRepository {
 	}
 }
 
-func (r *SQLOfferRepository) Save(offer *entity.Offer, dispatcherID string) (string, error) {
+func (r *SQLOfferRepository) Save(offer *entity.Offer, dispatcherID string) (*entity.Offer, error) {
 	carrier, err := r.CarrierRepository.CreateOrFirst(offer.Carrier)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	weights, err := json.Marshal(offer.Weights)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	deliveryTime, err := json.Marshal(offer.DeliveryTime)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	originalDeliveryTime, err := json.Marshal(offer.OriginalDeliveryTime)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	result, err := r.Queries.CreateOffer(r.Ctx, db.CreateOfferParams{
@@ -73,16 +72,15 @@ func (r *SQLOfferRepository) Save(offer *entity.Offer, dispatcherID string) (str
 		UpdatedAt:                    time.Now(),
 	})
 	if err != nil {
-		fmt.Println(err)
-		return "", err
+		return nil, err
 	}
 
 	_, err = result.LastInsertId()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return offer.ID, nil
+	return offer, nil
 }
 
 func toNullString(s string) sql.NullString {
