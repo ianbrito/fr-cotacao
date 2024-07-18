@@ -1,0 +1,258 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API de consulta de cotações",
+        "title": "Quote API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/metrics": {
+            "get": {
+                "description": "Retrieve metrics, optionally limited by the number of last quotes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "metrics"
+                ],
+                "summary": "Get metrics",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of last quotes to limit the metrics",
+                        "name": "last_quotes",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MetricResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/quote": {
+            "post": {
+                "description": "Get a quote based on the provided request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "quotes"
+                ],
+                "summary": "Get a quote",
+                "parameters": [
+                    {
+                        "description": "Quote Request",
+                        "name": "QuoteRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.QuoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.QuoteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.AddressRequest": {
+            "type": "object",
+            "required": [
+                "zipcode"
+            ],
+            "properties": {
+                "zipcode": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CarrierMetricResponse": {
+            "type": "object",
+            "properties": {
+                "media_preco_frete": {
+                    "type": "number"
+                },
+                "resultados": {
+                    "type": "integer"
+                },
+                "total_preco_frete": {
+                    "type": "number"
+                },
+                "transportadora": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CarrierResponse": {
+            "type": "object",
+            "properties": {
+                "deadline": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "service": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MetricResponse": {
+            "type": "object",
+            "properties": {
+                "carrier": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CarrierMetricResponse"
+                    }
+                },
+                "frete_mais_barato": {
+                    "type": "number"
+                },
+                "frete_mais_caro": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.QuoteRequest": {
+            "type": "object",
+            "required": [
+                "recipient",
+                "volumes"
+            ],
+            "properties": {
+                "recipient": {
+                    "$ref": "#/definitions/dto.RecipientRequest"
+                },
+                "volumes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.VolumeRequest"
+                    }
+                }
+            }
+        },
+        "dto.QuoteResponse": {
+            "type": "object",
+            "properties": {
+                "carrier": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CarrierResponse"
+                    }
+                }
+            }
+        },
+        "dto.RecipientRequest": {
+            "type": "object",
+            "required": [
+                "address"
+            ],
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.AddressRequest"
+                }
+            }
+        },
+        "dto.VolumeRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category",
+                "height",
+                "length",
+                "price",
+                "sku",
+                "unitary_weight",
+                "width"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "category": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "length": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "unitary_weight": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

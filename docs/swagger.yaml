@@ -1,0 +1,170 @@
+basePath: /api/v1
+definitions:
+  dto.AddressRequest:
+    properties:
+      zipcode:
+        type: string
+    required:
+    - zipcode
+    type: object
+  dto.CarrierMetricResponse:
+    properties:
+      media_preco_frete:
+        type: number
+      resultados:
+        type: integer
+      total_preco_frete:
+        type: number
+      transportadora:
+        type: string
+    type: object
+  dto.CarrierResponse:
+    properties:
+      deadline:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      service:
+        type: string
+    type: object
+  dto.ErrorResponse:
+    properties:
+      errors:
+        additionalProperties:
+          type: string
+        type: object
+      message:
+        type: string
+    type: object
+  dto.MetricResponse:
+    properties:
+      carrier:
+        items:
+          $ref: '#/definitions/dto.CarrierMetricResponse'
+        type: array
+      frete_mais_barato:
+        type: number
+      frete_mais_caro:
+        type: number
+    type: object
+  dto.QuoteRequest:
+    properties:
+      recipient:
+        $ref: '#/definitions/dto.RecipientRequest'
+      volumes:
+        items:
+          $ref: '#/definitions/dto.VolumeRequest'
+        type: array
+    required:
+    - recipient
+    - volumes
+    type: object
+  dto.QuoteResponse:
+    properties:
+      carrier:
+        items:
+          $ref: '#/definitions/dto.CarrierResponse'
+        type: array
+    type: object
+  dto.RecipientRequest:
+    properties:
+      address:
+        $ref: '#/definitions/dto.AddressRequest'
+    required:
+    - address
+    type: object
+  dto.VolumeRequest:
+    properties:
+      amount:
+        type: integer
+      category:
+        type: integer
+      height:
+        type: number
+      length:
+        type: number
+      price:
+        type: number
+      sku:
+        type: string
+      unitary_weight:
+        type: number
+      width:
+        type: number
+    required:
+    - amount
+    - category
+    - height
+    - length
+    - price
+    - sku
+    - unitary_weight
+    - width
+    type: object
+info:
+  contact: {}
+  description: API de consulta de cotações
+  title: Quote API
+  version: "1.0"
+paths:
+  /metrics:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve metrics, optionally limited by the number of last quotes
+      parameters:
+      - description: Number of last quotes to limit the metrics
+        in: query
+        name: last_quotes
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MetricResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get metrics
+      tags:
+      - metrics
+  /quote:
+    post:
+      consumes:
+      - application/json
+      description: Get a quote based on the provided request
+      parameters:
+      - description: Quote Request
+        in: body
+        name: QuoteRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.QuoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.QuoteResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get a quote
+      tags:
+      - quotes
+swagger: "2.0"
