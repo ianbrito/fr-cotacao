@@ -2,7 +2,9 @@ package dto
 
 import (
 	"encoding/json"
+	"github.com/ianbrito/fr-cotacao/internal/domain/entity"
 	"net/http"
+	"strconv"
 )
 
 type QuoteResponse struct {
@@ -16,9 +18,22 @@ type CarrierResponse struct {
 	Price    float64 `json:"price"`
 }
 
-func NewQuoteResponse() *QuoteResponse {
-	return &QuoteResponse{}
+func NewQuoteResponse(dispatchers []*entity.Dispatcher) *QuoteResponse {
+	response := &QuoteResponse{}
+	for _, dispatcher := range dispatchers {
+		for _, offer := range dispatcher.Offers {
+			response.AddCarrier(&CarrierResponse{
+				Name:     offer.Carrier.Name,
+				Service:  offer.Modal,
+				Deadline: strconv.Itoa(offer.DeliveryTime.Days),
+				Price:    offer.FinalPrice,
+			})
+		}
+	}
+	return response
 }
+
+func (r *QuoteResponse) SetCarrier(carrier *CarrierResponse) {}
 
 func (qr *QuoteResponse) AddCarrier(carrier *CarrierResponse) {
 	qr.Carrier = append(qr.Carrier, carrier)
